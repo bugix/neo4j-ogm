@@ -219,7 +219,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
         try {
             BoltConfig boltConfig = getBoltConfiguration(driverConfig);
             Config.ConfigBuilder configBuilder = Config.build();
-            configBuilder.withLogging(new ConsoleLogging(Level.FINE));
             configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
             if (boltConfig.encryptionLevel.equals(Config.EncryptionLevel.REQUIRED)) {
                 configBuilder.withEncryption();
