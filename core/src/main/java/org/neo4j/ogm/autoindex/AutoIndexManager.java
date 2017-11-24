@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -72,9 +73,17 @@ public class AutoIndexManager {
             if (classInfo.containsIndexes()) {
                 for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
                     IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
-                    final AutoIndex index = new AutoIndex(type, classInfo.neo4jName(), new String[] {fieldInfo.property()});
-                    LOGGER.debug("Adding Index [description={}]", index);
-                    indexMetadata.add(index);
+                    final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), new String[] {fieldInfo.property()});
+                    LOGGER.debug("Adding Index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+
+                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
+                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
+                    String[] properties = index.value().length > 0 ? index.value() : index.properties();
+                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), properties);
+                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
                 }
             }
         }
