@@ -45,6 +45,7 @@ import org.neo4j.ogm.annotation.PostLoad;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.Required;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -96,6 +97,7 @@ public class ClassInfo {
     private volatile Set<FieldInfo> fieldInfos;
     private volatile Map<String, FieldInfo> propertyFields;
     private volatile Map<String, FieldInfo> indexFields;
+    private volatile Collection<FieldInfo> requiredFields;
     private volatile Collection<CompositeIndex> compositeIndexes;
     private volatile LazyInstance<FieldInfo> identityField;
     private volatile FieldInfo primaryIndexField = null;
@@ -1025,6 +1027,26 @@ public class ClassInfo {
             LOGGER.warn("Failed to find an @StartNode on {}", name());
         }
         return null;
+    }
+
+    /**
+     * Returns if the class as fields annotated with @Required annotation
+     */
+    public boolean hasRequiredFields() { ;
+        return !requiredFields().isEmpty();
+    }
+
+    public Collection<FieldInfo> requiredFields() {
+        if (requiredFields == null) {
+            requiredFields = new ArrayList<>();
+
+            for (FieldInfo fieldInfo : propertyFields()) {
+                if (fieldInfo.getAnnotations().has(Required.class)) {
+                    requiredFields.add(fieldInfo);
+                }
+            }
+        }
+        return requiredFields;
     }
 }
 
